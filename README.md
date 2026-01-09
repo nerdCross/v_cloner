@@ -1,0 +1,87 @@
+# 🤖 Voice Cloning
+- Users upload the audio records and clone the voice for given text.
+- Learning, having fun and hands-on experience with AWS & Terraform & Serverless architecture.
+- Screen recording of the web app:
+
+  https://github.com/user-attachments/assets/b696a549-e263-46a9-a13b-b0e9e5068afb
+
+<br>
+
+## 🚀 Tech Stack
+
+### 1. Architecture
+
+![Architecture.png](./assets/architecture.png)
+
+---
+
+**Resource links (you can read them from Terraform outputs):**
+
+| Resource | Link |
+|---|---|
+| Web via Cloudfront | https://<CDN_WEBAPP_ID>.cloudfront.net/ |
+| Web via S3 | http://<S3_BUCKET_NAME>.s3-website.eu-central-1.amazonaws.com/ |
+| API via Cloudfront | http://<CDN_API_ID>.cloudfront.net/api/docs |
+| API via APIGateway | https://<APIGateway_API_ID>.execute-api.eu-central-1.amazonaws.com/api/docs |
+
+### 2. AWS
+
+- Install AWS CLI
+- Create a developer user with `AdministratorAccess` to be used by TF
+- Configure the ` ~/.aws/credentials` file for the credentials
+
+### 3. Terraform
+
+**How to deploy?**
+```bash
+chmod +x 'scripts/provision_the_project.sh' && ./scripts/provision_the_project.sh
+```
+
+**How to destroy?**
+```bash
+brew install cloud-nuke
+cloud-nuke aws --region eu-central-1
+chmod +x './scripts/force_delete_s3.sh' && ./scripts/force_delete_s3.sh
+chmod +x './scripts/cleanup_batch.sh' && ./scripts/cleanup_batch.sh
+```
+
+### 4. App
+
+```bash
+# Local setup
+conda create --name VoiceCloning python=3.10 -y
+conda activate VoiceCloning
+pip install --upgrade pip
+pip install -r requirements.txt
+python entrypoint.py
+```
+
+### 5. API
+```bash
+# Local setup
+cd api
+conda activate VoiceCloning
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+![API by FastAPI](./assets/api.png)
+
+## 🛠️ Notes
+- If the Cloudfront seems outdated, introduce "Invalidations" with a path:
+  ```bash
+  # website
+  aws cloudfront create-invalidation --distribution-id "E281IVOBPB39H5" --paths "/*"
+  # api
+  aws cloudfront create-invalidation --distribution-id "EZ0ZFJOIKT14T" --paths "/*"
+  ```
+- Future: Remove the hardcoded variables in the code base and replace them with environment variables.
+- Future: Implement CI/CD to provision the infra and to deploy the app.
+- The model is forked and adapted from https://github.com/jnordberg/tortoise-tts.
+  * However, this should be changed to main repo https://github.com/neonbjb/tortoise-tts.
+
+<br>
+
+ 
+
+Moreover, please do not hesitate to comment via opening an issue via GitHub if you have any suggestions or feedback!
